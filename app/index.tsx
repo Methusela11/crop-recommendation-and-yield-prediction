@@ -124,15 +124,15 @@ const styles = StyleSheet.create({
   },
 
   title: {
-    fontSize: 26,
+    fontSize: 22,
     fontWeight: "700",
     textAlign: "center",
     color: "#222",
   },
 
   subtitle: {
-    marginTop: 10,
-    fontSize: 15,
+    marginBottom: 20,
+    fontSize: 12,
     textAlign: "center",
     color: "#777",
     lineHeight: 22,

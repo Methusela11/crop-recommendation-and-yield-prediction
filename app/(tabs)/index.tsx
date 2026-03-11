@@ -13,6 +13,8 @@ import {
   View,
 } from "react-native";
 
+import { recommendCrops } from "../../services/cropDatasetService";
+
 export default function Home() {
   const [isDarkMode, setIsDarkMode] = useState(false);
   const [address, setAddress] = useState<string>("Fetching location...");
@@ -33,13 +35,15 @@ export default function Home() {
     precipitation: number;
   } | null>(null);
 
+  const [recommendedCrops, setRecommendedCrops] = useState<string[]>([]);
+
   const router = useRouter();
 
   const toggleTheme = () => setIsDarkMode(!isDarkMode);
 
   useEffect(() => {
     fetchLocationAndWeather();
-  }, []);
+  });
 
   // Calculate soil moisture based on humidity and precipitation
   const getSoilMoisture = (humidity: number, precipitation: number) => {
@@ -110,6 +114,9 @@ export default function Home() {
         soilMoisture: getSoilMoisture(humidity, precipitation),
         precipitation,
       });
+      // 🔹 Get recommended crops from JSON dataset
+      const crops = recommendCrops(temperature, humidity, precipitation);
+      setRecommendedCrops(crops);
     } catch (err) {
       console.error(err);
       setAddress("Failed to fetch location/weather");
@@ -248,7 +255,7 @@ export default function Home() {
               </Text>
               <View style={styles.goodBadge}>
                 <Text style={styles.badgeText}>
-                  {weather ? `${weather.humidity}%` : "Analysing..."}
+                  {weather ? `${weather.humidity}%` : "Analyzing..."}
                 </Text>
               </View>
             </View>
@@ -276,7 +283,7 @@ export default function Home() {
                 ]}
               >
                 <Text style={styles.badgeText}>
-                  {weather ? weather.soilMoisture : "Comparing..."}
+                  {weather ? weather.soilMoisture : "Analyzing..."}
                 </Text>
               </View>
             </View>
@@ -301,7 +308,12 @@ export default function Home() {
 
         <TouchableOpacity
           style={styles.mainButton}
-          onPress={() => router.push("/(tabs)/recommendation")}
+          onPress={() =>
+            router.push({
+              pathname: "/(tabs)/recommendation",
+              params: { crops: JSON.stringify(recommendedCrops) },
+            })
+          }
         >
           <Text style={styles.mainButtonText}>Get Crop Recommendation</Text>
           <Ionicons name="arrow-forward" size={20} color="white" />
