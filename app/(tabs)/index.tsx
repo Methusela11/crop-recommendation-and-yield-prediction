@@ -1,126 +1,348 @@
 import { Ionicons } from "@expo/vector-icons";
+import * as Location from "expo-location";
 import { useRouter } from "expo-router";
+import { useEffect, useState } from "react";
 import {
-  Dimensions,
-  ImageBackground,
-  ScrollView,
+  ActivityIndicator,
+  Image,
   StyleSheet,
   Text,
   TouchableOpacity,
   View,
 } from "react-native";
 
-const { width } = Dimensions.get("window");
-const cardWidth = width / 2 - 30;
-
 export default function Home() {
+  const [isDarkMode, setIsDarkMode] = useState(false);
+  const [address, setAddress] = useState<string>("Fetching location...");
+  const [loadingLocation, setLoadingLocation] = useState(true);
+
+  const [weather, setWeather] = useState<{
+    temperature: number;
+    condition: string;
+    humidity: number;
+    soilMoisture: string;
+    precipitation: number;
+  } | null>(null);
+
   const router = useRouter();
 
+  const toggleTheme = () => setIsDarkMode(!isDarkMode);
+
+  useEffect(() => {
+    fetchLocationAndWeather();
+  }, []);
+
+  // Calculate soil moisture based on humidity and precipitation
+  const getSoilMoisture = (humidity: number, precipitation: number) => {
+    if (humidity >= 70 || precipitation >= 5) return "High";
+    if (humidity >= 40 || precipitation >= 1) return "Moderate";
+    return "Low";
+  };
+
+  const fetchLocationAndWeather = async () => {
+    setLoadingLocation(true);
+
+    const { status } = await Location.requestForegroundPermissionsAsync();
+    if (status !== "granted") {
+      setAddress("Location permission denied");
+      setLoadingLocation(false);
+      return;
+    }
+
+    try {
+      const loc = await Location.getCurrentPositionAsync({});
+      const geo = await Location.reverseGeocodeAsync({
+        latitude: loc.coords.latitude,
+        longitude: loc.coords.longitude,
+      });
+
+      if (geo.length > 0) {
+        const locData = geo[0];
+        const fullAddress = `${locData.city || ""}, ${locData.region || ""}, ${locData.country || ""}`;
+        setAddress(fullAddress);
+      } else {
+        setAddress("Unable to get address");
+      }
+
+      // Fetch live weather from Open-Meteo
+      const weatherRes = await fetch(
+        `https://api.open-meteo.com/v1/forecast?latitude=${loc.coords.latitude}&longitude=${loc.coords.longitude}&current_weather=true&hourly=temperature_2m,relative_humidity_2m,precipitation`,
+      );
+      const weatherData = await weatherRes.json();
+
+      const temperature = weatherData.current_weather.temperature;
+      const conditionCode = weatherData.current_weather.weathercode;
+      const humidity = weatherData.hourly.relative_humidity_2m[0];
+      const precipitation = weatherData.hourly.precipitation[0];
+
+      setWeather({
+        temperature,
+        condition: mapWeatherCodeToText(conditionCode),
+        humidity,
+        soilMoisture: getSoilMoisture(humidity, precipitation),
+        precipitation,
+      });
+    } catch (err) {
+      console.error(err);
+      setAddress("Failed to fetch location/weather");
+    }
+
+    setLoadingLocation(false);
+  };
+
+  const mapWeatherCodeToText = (code: number) => {
+    switch (code) {
+      case 0:
+        return "Clear";
+      case 1:
+      case 2:
+        return "Partly Cloudy";
+      case 3:
+        return "Cloudy";
+      case 45:
+      case 48:
+        return "Fog";
+      case 51:
+      case 53:
+      case 55:
+        return "Drizzle";
+      case 61:
+      case 63:
+      case 65:
+        return "Rain";
+      case 71:
+      case 73:
+      case 75:
+        return "Snow";
+      case 95:
+      case 96:
+      case 99:
+        return "Thunderstorm";
+      default:
+        return "Cloudy";
+    }
+  };
+
   return (
-    <ImageBackground
-      source={{
-        uri: "https://images.unsplash.com/photo-1500382017468-9049fed747ef",
-      }}
-      style={styles.background}
-      blurRadius={3}
+    <View
+      style={[
+        styles.container,
+        { backgroundColor: isDarkMode ? "#333" : "#c4bca2" },
+      ]}
     >
-      <ScrollView contentContainerStyle={styles.overlay}>
-        {/* Header */}
-        <View style={styles.header}>
-          <Text style={styles.title}>Crop Prediction Model</Text>
-
-          <Text style={styles.title1}>Welcome to the Future of Farming</Text>
-
-          <TouchableOpacity
-            style={styles.mainButton}
-            onPress={() => router.push("/(tabs)/recommendation")}
+      {/* HEADER */}
+      <View style={styles.header}>
+        <View style={styles.location}>
+          <Ionicons name="location" size={20} color="#E74C3C" />
+          <View
+            style={{
+              flexDirection: "row",
+              alignItems: "center",
+              marginLeft: 6,
+            }}
           >
-            <Text style={styles.mainButtonText}>Get Crop Recommendation</Text>
-            <Ionicons name="arrow-forward" size={20} color="white" />
-          </TouchableOpacity>
-        </View>
-
-        {/* Stats */}
-        <View style={styles.statsContainer}>
-          <View style={styles.statBox}>
-            <Ionicons name="leaf" size={24} color="green" />
-            <Text style={styles.statValue}>Calculating...</Text>
-            <Text style={styles.statLabel}>Harvest</Text>
-          </View>
-
-          <View style={styles.statBox}>
-            <Ionicons name="water" size={24} color="skyblue" />
-            <Text style={styles.statValue}>Analysing...</Text>
-            <Text style={styles.statLabel}>Fertilizer</Text>
+            {loadingLocation && (
+              <ActivityIndicator
+                size="small"
+                color={isDarkMode ? "#fff" : "#000"}
+                style={{ marginRight: 6 }}
+              />
+            )}
+            <Text
+              style={[
+                styles.locationText,
+                { color: isDarkMode ? "#fff" : "#000" },
+              ]}
+            >
+              {loadingLocation ? "Fetching location..." : address}
+            </Text>
           </View>
         </View>
 
-        {/* Spacer pushes cards down */}
-        <View style={{ flex: 1 }} />
-
-        {/* Feature Cards */}
-        <View style={styles.cardsContainer}>
-          <TouchableOpacity
-            style={[styles.card, { width: cardWidth }]}
-            onPress={() => router.push("/(tabs)/recommendation")}
-          >
-            <Ionicons name="leaf-outline" size={32} color="green" />
-            <Text style={styles.cardText}>Crop Advice</Text>
+        <View style={{ flexDirection: "row", alignItems: "center" }}>
+          <TouchableOpacity onPress={toggleTheme} style={{ marginRight: 15 }}>
+            <Ionicons
+              name={isDarkMode ? "moon" : "sunny"}
+              size={22}
+              color={isDarkMode ? "#fff" : "#333"}
+            />
           </TouchableOpacity>
-
-          <TouchableOpacity style={[styles.card, { width: cardWidth }]}>
-            <Ionicons name="rainy-outline" size={32} color="blue" />
-            <Text style={styles.cardText}>Weather</Text>
-          </TouchableOpacity>
-
-          <TouchableOpacity style={[styles.card, { width: cardWidth }]}>
-            <Ionicons name="analytics-outline" size={32} color="orange" />
-            <Text style={styles.cardText}>Soil Analysis</Text>
-          </TouchableOpacity>
-
-          <TouchableOpacity style={[styles.card, { width: cardWidth }]}>
-            <Ionicons name="bug-outline" size={32} color="red" />
-            <Text style={styles.cardText}>Pest Control</Text>
-          </TouchableOpacity>
+          <Ionicons
+            name="ellipsis-horizontal"
+            size={22}
+            color={isDarkMode ? "#fff" : "#333"}
+          />
         </View>
-      </ScrollView>
-    </ImageBackground>
+      </View>
+
+      {/* WEATHER CARD */}
+      <View
+        style={[
+          styles.weatherCard,
+          { backgroundColor: isDarkMode ? "#555" : "#F5C77C" },
+        ]}
+      >
+        <View>
+          <Text style={[styles.temp, { color: isDarkMode ? "#fff" : "#000" }]}>
+            {weather ? `${weather.temperature}°C` : "--°C"}
+          </Text>
+          <Text style={[styles.cloud, { color: isDarkMode ? "#ccc" : "#555" }]}>
+            {weather ? weather.condition : "Loading..."}
+          </Text>
+        </View>
+
+        <View style={styles.weatherStats}>
+          <View>
+            <Text
+              style={[
+                styles.weatherLabel,
+                { color: isDarkMode ? "#ccc" : "#444" },
+              ]}
+            >
+              Humidity
+            </Text>
+            <View style={styles.goodBadge}>
+              <Text style={styles.badgeText}>
+                {weather ? `${weather.humidity}%` : "Analysing..."}
+              </Text>
+            </View>
+          </View>
+
+          <View>
+            <Text
+              style={[
+                styles.weatherLabel,
+                { color: isDarkMode ? "#ccc" : "#444" },
+              ]}
+            >
+              Soil Moisture
+            </Text>
+            <View
+              style={[
+                styles.goodBadge,
+                {
+                  backgroundColor:
+                    weather?.soilMoisture === "High"
+                      ? "#DFF5E4"
+                      : weather?.soilMoisture === "Moderate"
+                        ? "#F7E5D2"
+                        : "#FADBD8",
+                },
+              ]}
+            >
+              <Text style={styles.badgeText}>
+                {weather ? weather.soilMoisture : "Comparing..."}
+              </Text>
+            </View>
+          </View>
+
+          <View>
+            <Text
+              style={[
+                styles.weatherLabel,
+                { color: isDarkMode ? "#ccc" : "#444" },
+              ]}
+            >
+              Precipitation
+            </Text>
+            <View style={styles.lowBadge}>
+              <Text style={styles.badgeText}>
+                {weather ? `${weather.precipitation}mm` : "Calculating..."}
+              </Text>
+            </View>
+          </View>
+        </View>
+      </View>
+
+      <TouchableOpacity
+        style={styles.mainButton}
+        onPress={() => router.push("/(tabs)/recommendation")}
+      >
+        <Text style={styles.mainButtonText}>Get Crop Recommendation</Text>
+        <Ionicons name="arrow-forward" size={20} color="white" />
+      </TouchableOpacity>
+
+      {/* SECTION + GRID */}
+      <View style={{ flex: 1, justifyContent: "flex-end" }}>
+        <Text
+          style={[styles.sectionTitle, { color: isDarkMode ? "#fff" : "#000" }]}
+        >
+          CROP RECOMMENDATION AND YIELD PREDICTION SYSTEM
+        </Text>
+
+        <View style={styles.grid}>
+          {["My Farm", "Crops", "Inventory", "Balance"].map((title, idx) => (
+            <TouchableOpacity
+              key={idx}
+              style={[
+                styles.card,
+                { backgroundColor: isDarkMode ? "#444" : "#F7F4F0" },
+              ]}
+            >
+              <Image
+                source={require("../../assets/images/icon.png")}
+                style={styles.cardImage}
+              />
+              <Text
+                style={[
+                  styles.cardText,
+                  { color: isDarkMode ? "#fff" : "#000" },
+                ]}
+              >
+                {title}
+              </Text>
+            </TouchableOpacity>
+          ))}
+        </View>
+      </View>
+    </View>
   );
 }
 
 const styles = StyleSheet.create({
-  background: {
-    flex: 1,
-  },
-
-  overlay: {
-    flex: 1,
-    padding: 15,
-  },
-
+  container: { flex: 1, padding: 20 },
   header: {
-    marginBottom: 30,
-    marginTop: 50,
+    flexDirection: "row",
+    justifyContent: "space-between",
+    alignItems: "center",
+    marginTop: 40,
   },
-
-  title: {
-    fontSize: 32,
-    fontWeight: "bold",
-    color: "white",
-    marginBottom: 20,
+  location: { flexDirection: "row", alignItems: "center" },
+  locationText: { marginLeft: 6, fontSize: 12, fontWeight: "600" },
+  weatherCard: { borderRadius: 20, padding: 20, marginTop: 20 },
+  temp: { fontSize: 28, fontWeight: "bold" },
+  cloud: { color: "#555" },
+  weatherStats: {
+    flexDirection: "row",
+    justifyContent: "space-between",
+    marginTop: 15,
   },
-
-  title1: {
-    fontSize: 20,
-    fontWeight: "bold",
-    color: "white",
-    marginBottom: 20,
+  weatherLabel: { fontSize: 12, color: "#444" },
+  goodBadge: {
+    paddingHorizontal: 10,
+    paddingVertical: 4,
+    borderRadius: 10,
+    marginTop: 4,
   },
-
+  lowBadge: {
+    backgroundColor: "#F7E5D2",
+    paddingHorizontal: 10,
+    paddingVertical: 4,
+    borderRadius: 10,
+    marginTop: 4,
+  },
+  badgeText: { fontSize: 10 },
+  sectionTitle: {
+    textAlign: "center",
+    fontSize: 10,
+    marginTop: 30,
+    marginBottom: 15,
+    fontWeight: "600",
+  },
   mainButton: {
     flexDirection: "row",
     alignItems: "center",
-    backgroundColor: "#038109",
+    backgroundColor: "#0f6e02",
     padding: 15,
     borderRadius: 30,
     justifyContent: "space-between",
@@ -132,50 +354,19 @@ const styles = StyleSheet.create({
     fontSize: 16,
     fontWeight: "600",
   },
-
-  statsContainer: {
-    flexDirection: "row",
-    justifyContent: "space-between",
-    marginBottom: 30,
-  },
-
-  statBox: {
-    backgroundColor: "rgba(0,0,0,0.5)",
-    padding: 20,
-    borderRadius: 15,
-    width: "48%",
-    alignItems: "center",
-  },
-
-  statValue: {
-    color: "white",
-    fontSize: 13,
-    fontWeight: "bold",
-    marginTop: 5,
-  },
-
-  statLabel: {
-    color: "#ddd",
-  },
-
-  cardsContainer: {
+  grid: {
     flexDirection: "row",
     flexWrap: "wrap",
     justifyContent: "space-between",
   },
-
   card: {
-    backgroundColor: "white",
+    width: "47%",
     height: 120,
     borderRadius: 20,
-    marginBottom: 20,
-    alignItems: "center",
     justifyContent: "center",
+    alignItems: "center",
+    marginBottom: 20,
   },
-
-  cardText: {
-    marginTop: 10,
-    fontWeight: "600",
-    textAlign: "center",
-  },
+  cardImage: { width: 45, height: 45, marginBottom: 10 },
+  cardText: { fontWeight: "600" },
 });

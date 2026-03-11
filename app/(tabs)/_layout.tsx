@@ -1,7 +1,15 @@
 import { Ionicons } from "@expo/vector-icons";
+import * as NavigationBar from "expo-navigation-bar";
 import { Tabs } from "expo-router";
+import { useEffect } from "react";
+
 
 export default function TabLayout() {
+  useEffect(() => {
+    NavigationBar.setBackgroundColorAsync("#76A7CE"); // match your screen color
+    NavigationBar.setButtonStyleAsync("dark"); // dark icons
+  }, []);
+
   return (
     <Tabs
       screenOptions={{
