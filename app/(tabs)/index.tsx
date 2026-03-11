@@ -60,23 +60,42 @@ export default function Home() {
 
     try {
       const loc = await Location.getCurrentPositionAsync({});
-      const geo = await Location.reverseGeocodeAsync({
-        latitude: loc.coords.latitude,
-        longitude: loc.coords.longitude,
-      });
 
-      if (geo.length > 0) {
-        const locData = geo[0];
-        const fullAddress = `${locData.city || ""}, ${locData.region || ""}, ${locData.country || ""}`;
-        setAddress(fullAddress);
-      } else {
-        setAddress("Unable to get address");
+      let fullAddress = "";
+
+      try {
+        // Try Expo reverse geocode first
+        const geo = await Location.reverseGeocodeAsync({
+          latitude: loc.coords.latitude,
+          longitude: loc.coords.longitude,
+        });
+
+        if (geo.length > 0) {
+          const locData = geo[0];
+          fullAddress = `${locData.city || ""}, ${locData.region || ""}, ${locData.country || ""}`;
+        }
+      } catch (e) {
+        console.log("Expo reverse geocode failed");
       }
 
-      // Fetch live weather from Open-Meteo
+      // Fallback using OpenStreetMap
+      if (!fullAddress) {
+        const res = await fetch(
+          `https://nominatim.openstreetmap.org/reverse?format=json&lat=${loc.coords.latitude}&lon=${loc.coords.longitude}`,
+        );
+
+        const data = await res.json();
+
+        fullAddress = `${data.address.city || data.address.town || data.address.village || ""}, ${data.address.country || ""}`;
+      }
+
+      setAddress(fullAddress || "Unknown location");
+
+      // WEATHER API
       const weatherRes = await fetch(
         `https://api.open-meteo.com/v1/forecast?latitude=${loc.coords.latitude}&longitude=${loc.coords.longitude}&current_weather=true&hourly=temperature_2m,relative_humidity_2m,precipitation`,
       );
+
       const weatherData = await weatherRes.json();
 
       const temperature = weatherData.current_weather.temperature;
@@ -146,7 +165,7 @@ export default function Home() {
       <View
         style={[
           styles.container,
-          { backgroundColor: isDarkMode ? "#333" : "#c4bca2" },
+          { backgroundColor: isDarkMode ? "#272626" : "#c4bca2" },
         ]}
       >
         {/* HEADER */}
@@ -299,29 +318,88 @@ export default function Home() {
             CROP RECOMMENDATION AND YIELD PREDICTION SYSTEM
           </Text>
 
+          {/* GRID */}
           <View style={styles.grid}>
-            {["My Farm", "Crops", "Inventory", "Balance"].map((title, idx) => (
-              <TouchableOpacity
-                key={idx}
+            <TouchableOpacity
+              style={[
+                styles.card,
+                { backgroundColor: isDarkMode ? "#444" : "#F7F4F0" },
+              ]}
+              onPress={() => router.push("/(tabs)/recommendation")}
+            >
+              <Image
+                source={require("../../assets/images/crop/1.png")}
+                style={styles.cardImage}
+              />
+              <Text
                 style={[
-                  styles.card,
-                  { backgroundColor: isDarkMode ? "#444" : "#F7F4F0" },
+                  styles.cardText,
+                  { color: isDarkMode ? "#fff" : "#000" },
                 ]}
               >
-                <Image
-                  source={require("../../assets/images/icon.png")}
-                  style={styles.cardImage}
-                />
-                <Text
-                  style={[
-                    styles.cardText,
-                    { color: isDarkMode ? "#fff" : "#000" },
-                  ]}
-                >
-                  {title}
-                </Text>
-              </TouchableOpacity>
-            ))}
+                Crop Advice
+              </Text>
+            </TouchableOpacity>
+
+            <TouchableOpacity
+              style={[
+                styles.card,
+                { backgroundColor: isDarkMode ? "#444" : "#F7F4F0" },
+              ]}
+            >
+              <Image
+                source={require("../../assets/images/weather/w1.png")}
+                style={styles.cardImage}
+              />
+              <Text
+                style={[
+                  styles.cardText,
+                  { color: isDarkMode ? "#fff" : "#000" },
+                ]}
+              >
+                Weather
+              </Text>
+            </TouchableOpacity>
+
+            <TouchableOpacity
+              style={[
+                styles.card,
+                { backgroundColor: isDarkMode ? "#444" : "#F7F4F0" },
+              ]}
+            >
+              <Image
+                source={require("../../assets/images/soil/11.png")}
+                style={styles.cardImage}
+              />
+              <Text
+                style={[
+                  styles.cardText,
+                  { color: isDarkMode ? "#fff" : "#000" },
+                ]}
+              >
+                Soil Analysis
+              </Text>
+            </TouchableOpacity>
+
+            <TouchableOpacity
+              style={[
+                styles.card,
+                { backgroundColor: isDarkMode ? "#444" : "#F7F4F0" },
+              ]}
+            >
+              <Image
+                source={require("../../assets/images/farm/1.png")}
+                style={styles.cardImage}
+              />
+              <Text
+                style={[
+                  styles.cardText,
+                  { color: isDarkMode ? "#fff" : "#000" },
+                ]}
+              >
+                My Farm
+              </Text>
+            </TouchableOpacity>
           </View>
         </View>
       </View>
@@ -335,11 +413,11 @@ const styles = StyleSheet.create({
     flexDirection: "row",
     justifyContent: "space-between",
     alignItems: "center",
-    marginTop: 40,
+    marginTop: 50,
   },
   location: { flexDirection: "row", alignItems: "center" },
   locationText: { marginLeft: 6, fontSize: 12, fontWeight: "600" },
-  weatherCard: { borderRadius: 20, padding: 20, marginTop: 20 },
+  weatherCard: { borderRadius: 20, padding: 20, marginTop: 50 },
   temp: { fontSize: 28, fontWeight: "bold" },
   cloud: { color: "#555" },
   weatherStats: {
@@ -376,7 +454,7 @@ const styles = StyleSheet.create({
     padding: 15,
     borderRadius: 30,
     justifyContent: "space-between",
-    marginTop: 20,
+    marginTop: 50,
   },
 
   mainButtonText: {
@@ -397,6 +475,6 @@ const styles = StyleSheet.create({
     alignItems: "center",
     marginBottom: 20,
   },
-  cardImage: { width: 45, height: 45, marginBottom: 10 },
+  cardImage: { width: 60, height: 55, marginBottom: 10 },
   cardText: { fontWeight: "600" },
 });
