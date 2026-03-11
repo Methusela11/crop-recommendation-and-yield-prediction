@@ -1,6 +1,6 @@
 //app/_layout.tsx
-
-// app/_layout.tsx
+import * as NavigationBar from "expo-navigation-bar";
+import { useEffect } from "react";
 
 import {
   DarkTheme,
@@ -14,6 +14,10 @@ import "react-native-reanimated";
 import { useColorScheme } from "@/hooks/use-color-scheme";
 
 export default function RootLayout() {
+  useEffect(() => {
+    NavigationBar.setBackgroundColorAsync("#76A7CE"); // match your screen color
+    NavigationBar.setButtonStyleAsync("dark"); // dark icons
+  }, []);
   const colorScheme = useColorScheme();
 
   return (
@@ -36,4 +40,3 @@ export default function RootLayout() {
     </ThemeProvider>
   );
 }
-
