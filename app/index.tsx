@@ -37,12 +37,10 @@ export default function Index() {
     <View style={styles.container}>
       {/* Illustration */}
       <Image
-        source={{
-          uri: "https://images.unsplash.com/photo-1500382017468-9049fed747ef",
-        }}
+        source={require("../assets/images/photo.jpeg")}
         style={styles.image}
         resizeMode="cover"
-      />
+            />
 
       {/* Bottom Card */}
       <View style={styles.card}>
