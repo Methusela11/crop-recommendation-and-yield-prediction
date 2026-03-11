@@ -2,12 +2,12 @@
 
 interface Crop {
   name: string;
-  idealTemp: [number, number]; // min, max °C
-  idealHumidity: [number, number]; // min, max %
-  idealRainfall: [number, number]; // min, max mm
+  idealTemp: [number, number]; // °C
+  idealHumidity: [number, number]; // %
+  idealRainfall: [number, number]; // mm
 }
 
-// Define your crops and ideal conditions
+// Define crops and ideal conditions
 const crops: Crop[] = [
   {
     name: "Maize",
@@ -41,32 +41,22 @@ const crops: Crop[] = [
   },
 ];
 
-// Function to calculate score for each crop
+// Function to calculate score
 export function recommendCrops(
   temp: number,
   humidity: number,
   rainfall: number,
 ): string[] {
-  const scoredCrops = crops.map((crop) => {
+  const scored = crops.map((crop) => {
     let score = 0;
-
-    // Temperature score
     if (temp >= crop.idealTemp[0] && temp <= crop.idealTemp[1]) score += 1;
-
-    // Humidity score
     if (humidity >= crop.idealHumidity[0] && humidity <= crop.idealHumidity[1])
       score += 1;
-
-    // Rainfall score
     if (rainfall >= crop.idealRainfall[0] && rainfall <= crop.idealRainfall[1])
       score += 1;
-
     return { name: crop.name, score };
   });
 
-  // Sort by score descending (best crops first)
-  scoredCrops.sort((a, b) => b.score - a.score);
-
-  // Return array of crop names in order of suitability
-  return scoredCrops.map((c) => c.name);
+  scored.sort((a, b) => b.score - a.score);
+  return scored.map((c) => c.name);
 }
