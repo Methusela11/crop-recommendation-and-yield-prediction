@@ -1,6 +1,7 @@
 import { router } from "expo-router";
 import { useState } from "react";
 import {
+    Dimensions,
     FlatList,
     Image,
     StyleSheet,
@@ -9,17 +10,22 @@ import {
     View,
 } from "react-native";
 
+const { width } = Dimensions.get("window");
+
 const slides = [
   {
-    title: "The next generation\nof farming",
-    subtitle: "We provide data that enables the goals of global agriculture.",
+    image: require("../assets/images/icon.png"),
+    title: "Next generation of farming",
+    subtitle: "We provide data that enables the goals of global farming.",
   },
   {
-    title: "Smart agriculture\nfor farmers",
-    subtitle: "Use AI powered insights to improve crop yield and soil health.",
+    image: require("../assets/images/img/smart.png"),
+    title: "Smart farming for farmers",
+    subtitle: "Use AI powered insights to predict crop yield.",
   },
   {
-    title: "Grow more with\nless effort",
+    image: require("../assets/images/img/11.png"),
+    title: "Grow more with less effort",
     subtitle: "Track weather, soil moisture and farm productivity easily.",
   },
 ];
@@ -33,9 +39,9 @@ export default function Index() {
       <Image
         source={{
           uri: "https://images.unsplash.com/photo-1500382017468-9049fed747ef",
-      }}
+        }}
         style={styles.image}
-        resizeMode="contain"
+        resizeMode="cover"
       />
 
       {/* Bottom Card */}
@@ -44,14 +50,19 @@ export default function Index() {
           data={slides}
           horizontal
           pagingEnabled
-          showsVerticalScrollIndicator={false}
+          showsHorizontalScrollIndicator={false}
           keyExtractor={(_, i) => i.toString()}
           onMomentumScrollEnd={(event) => {
-            const index = Math.round(event.nativeEvent.contentOffset.y / 180);
+            const index = Math.round(event.nativeEvent.contentOffset.x / width);
             setActiveIndex(index);
           }}
           renderItem={({ item }) => (
-            <View style={styles.slide}>
+            <View style={[styles.slide, { width }]}>
+              <Image
+                source={item.image}
+                style={styles.slideImage}
+                resizeMode="contain"
+              />
               <Text style={styles.title}>{item.title}</Text>
               <Text style={styles.subtitle}>{item.subtitle}</Text>
             </View>
@@ -83,48 +94,56 @@ export default function Index() {
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    backgroundColor: "#76A7CE",
+    backgroundColor: "#7FB2D6",
   },
 
   image: {
     width: "100%",
-    height: 380,
-    marginTop: 40,
+    height: "60%",
   },
 
   card: {
-    backgroundColor: "#F3F3F3",
+    flex: 1,
+    backgroundColor: "#F4F4F4",
+    marginTop: -80,
     borderTopLeftRadius: 40,
     borderTopRightRadius: 40,
-    marginTop: -60,
-    paddingTop: 30,
-    paddingHorizontal: 30,
     alignItems: "center",
-    flex: 1,
+    paddingTop: 30,
   },
 
   slide: {
-    height: 180,
     justifyContent: "center",
     alignItems: "center",
+    paddingHorizontal: 40,
+  },
+
+  slideImage: {
+    width: 260,
+    height: 180,
+    overflow: "hidden",
+    marginBottom: 20,
   },
 
   title: {
-    fontSize: 28,
+    fontSize: 26,
     fontWeight: "700",
     textAlign: "center",
+    color: "#222",
   },
 
   subtitle: {
     marginTop: 10,
-    fontSize: 16,
+    fontSize: 15,
     textAlign: "center",
-    color: "#6e6e6e",
+    color: "#777",
+    lineHeight: 22,
   },
 
   dots: {
     flexDirection: "row",
-    marginTop: 10,
+    marginTop: 20,
+    alignItems: "center",
   },
 
   activeDot: {
@@ -139,21 +158,22 @@ const styles = StyleSheet.create({
     width: 6,
     height: 6,
     borderRadius: 6,
-    backgroundColor: "#ccc",
+    backgroundColor: "#CFCFCF",
     marginHorizontal: 4,
   },
 
   button: {
-    marginTop: 20,
-    backgroundColor: "#4A2E08",
+    marginTop: 30,
+    marginBottom: 40,
+    backgroundColor: "#0f6e02",
     paddingVertical: 16,
-    paddingHorizontal: 60,
+    paddingHorizontal: 80,
     borderRadius: 40,
   },
 
   buttonText: {
-    color: "#fff",
-    fontSize: 18,
+    color: "#FFF",
+    fontSize: 17,
     fontWeight: "600",
   },
 });
