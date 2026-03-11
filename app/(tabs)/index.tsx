@@ -5,6 +5,8 @@ import { useEffect, useState } from "react";
 import {
   ActivityIndicator,
   Image,
+  RefreshControl,
+  ScrollView,
   StyleSheet,
   Text,
   TouchableOpacity,
@@ -15,6 +17,13 @@ export default function Home() {
   const [isDarkMode, setIsDarkMode] = useState(false);
   const [address, setAddress] = useState<string>("Fetching location...");
   const [loadingLocation, setLoadingLocation] = useState(true);
+  const [refreshing, setRefreshing] = useState(false);
+
+  const onRefresh = async () => {
+    setRefreshing(true);
+    await fetchLocationAndWeather(); // refresh location & weather
+    setRefreshing(false);
+  };
 
   const [weather, setWeather] = useState<{
     temperature: number;
@@ -124,178 +133,199 @@ export default function Home() {
   };
 
   return (
-    <View
-      style={[
-        styles.container,
-        { backgroundColor: isDarkMode ? "#333" : "#c4bca2" },
-      ]}
+    <ScrollView
+      contentContainerStyle={{ flexGrow: 1 }}
+      refreshControl={
+        <RefreshControl
+          refreshing={refreshing}
+          onRefresh={onRefresh}
+          tintColor={isDarkMode ? "#fff" : "#000"} // spinner color
+        />
+      }
     >
-      {/* HEADER */}
-      <View style={styles.header}>
-        <View style={styles.location}>
-          <Ionicons name="location" size={20} color="#E74C3C" />
-          <View
-            style={{
-              flexDirection: "row",
-              alignItems: "center",
-              marginLeft: 6,
-            }}
-          >
-            {loadingLocation && (
-              <ActivityIndicator
-                size="small"
-                color={isDarkMode ? "#fff" : "#000"}
-                style={{ marginRight: 6 }}
-              />
-            )}
-            <Text
-              style={[
-                styles.locationText,
-                { color: isDarkMode ? "#fff" : "#000" },
-              ]}
-            >
-              {loadingLocation ? "Fetching location..." : address}
-            </Text>
-          </View>
-        </View>
-
-        <View style={{ flexDirection: "row", alignItems: "center" }}>
-          <TouchableOpacity onPress={toggleTheme} style={{ marginRight: 15 }}>
-            <Ionicons
-              name={isDarkMode ? "moon" : "sunny"}
-              size={22}
-              color={isDarkMode ? "#fff" : "#333"}
-            />
-          </TouchableOpacity>
-          <Ionicons
-            name="ellipsis-horizontal"
-            size={22}
-            color={isDarkMode ? "#fff" : "#333"}
-          />
-        </View>
-      </View>
-
-      {/* WEATHER CARD */}
       <View
         style={[
-          styles.weatherCard,
-          { backgroundColor: isDarkMode ? "#555" : "#F5C77C" },
+          styles.container,
+          { backgroundColor: isDarkMode ? "#333" : "#c4bca2" },
         ]}
       >
-        <View>
-          <Text style={[styles.temp, { color: isDarkMode ? "#fff" : "#000" }]}>
-            {weather ? `${weather.temperature}°C` : "--°C"}
-          </Text>
-          <Text style={[styles.cloud, { color: isDarkMode ? "#ccc" : "#555" }]}>
-            {weather ? weather.condition : "Loading..."}
-          </Text>
-        </View>
+        {/* HEADER */}
+        <View style={styles.header}>
+          <View style={styles.location}>
+            <TouchableOpacity onPress={fetchLocationAndWeather}>
+              <Ionicons name="location" size={25} color="#E74C3C" />
+            </TouchableOpacity>
 
-        <View style={styles.weatherStats}>
-          <View>
-            <Text
-              style={[
-                styles.weatherLabel,
-                { color: isDarkMode ? "#ccc" : "#444" },
-              ]}
-            >
-              Humidity
-            </Text>
-            <View style={styles.goodBadge}>
-              <Text style={styles.badgeText}>
-                {weather ? `${weather.humidity}%` : "Analysing..."}
-              </Text>
-            </View>
-          </View>
-
-          <View>
-            <Text
-              style={[
-                styles.weatherLabel,
-                { color: isDarkMode ? "#ccc" : "#444" },
-              ]}
-            >
-              Soil Moisture
-            </Text>
             <View
-              style={[
-                styles.goodBadge,
-                {
-                  backgroundColor:
-                    weather?.soilMoisture === "High"
-                      ? "#DFF5E4"
-                      : weather?.soilMoisture === "Moderate"
-                        ? "#F7E5D2"
-                        : "#FADBD8",
-                },
-              ]}
+              style={{
+                flexDirection: "row",
+                alignItems: "center",
+                marginLeft: 6,
+              }}
             >
-              <Text style={styles.badgeText}>
-                {weather ? weather.soilMoisture : "Comparing..."}
-              </Text>
-            </View>
-          </View>
-
-          <View>
-            <Text
-              style={[
-                styles.weatherLabel,
-                { color: isDarkMode ? "#ccc" : "#444" },
-              ]}
-            >
-              Precipitation
-            </Text>
-            <View style={styles.lowBadge}>
-              <Text style={styles.badgeText}>
-                {weather ? `${weather.precipitation}mm` : "Calculating..."}
-              </Text>
-            </View>
-          </View>
-        </View>
-      </View>
-
-      <TouchableOpacity
-        style={styles.mainButton}
-        onPress={() => router.push("/(tabs)/recommendation")}
-      >
-        <Text style={styles.mainButtonText}>Get Crop Recommendation</Text>
-        <Ionicons name="arrow-forward" size={20} color="white" />
-      </TouchableOpacity>
-
-      {/* SECTION + GRID */}
-      <View style={{ flex: 1, justifyContent: "flex-end" }}>
-        <Text
-          style={[styles.sectionTitle, { color: isDarkMode ? "#fff" : "#000" }]}
-        >
-          CROP RECOMMENDATION AND YIELD PREDICTION SYSTEM
-        </Text>
-
-        <View style={styles.grid}>
-          {["My Farm", "Crops", "Inventory", "Balance"].map((title, idx) => (
-            <TouchableOpacity
-              key={idx}
-              style={[
-                styles.card,
-                { backgroundColor: isDarkMode ? "#444" : "#F7F4F0" },
-              ]}
-            >
-              <Image
-                source={require("../../assets/images/icon.png")}
-                style={styles.cardImage}
-              />
+              {loadingLocation && (
+                <ActivityIndicator
+                  size="small"
+                  color={isDarkMode ? "#fff" : "#000"}
+                  style={{ marginRight: 6 }}
+                />
+              )}
               <Text
                 style={[
-                  styles.cardText,
+                  styles.locationText,
                   { color: isDarkMode ? "#fff" : "#000" },
                 ]}
               >
-                {title}
+                {loadingLocation ? "Fetching location..." : address}
               </Text>
+            </View>
+          </View>
+
+          <View style={{ flexDirection: "row", alignItems: "center" }}>
+            <TouchableOpacity onPress={toggleTheme} style={{ marginRight: 15 }}>
+              <Ionicons
+                name={isDarkMode ? "moon" : "sunny"}
+                size={22}
+                color={isDarkMode ? "#fff" : "#333"}
+              />
             </TouchableOpacity>
-          ))}
+            <Ionicons
+              name="ellipsis-horizontal"
+              size={22}
+              color={isDarkMode ? "#fff" : "#333"}
+            />
+          </View>
+        </View>
+
+        {/* WEATHER CARD */}
+        <View
+          style={[
+            styles.weatherCard,
+            { backgroundColor: isDarkMode ? "#555" : "#F5C77C" },
+          ]}
+        >
+          <View>
+            <Text
+              style={[styles.temp, { color: isDarkMode ? "#fff" : "#000" }]}
+            >
+              {weather ? `${weather.temperature}°C` : "--°C"}
+            </Text>
+            <Text
+              style={[styles.cloud, { color: isDarkMode ? "#ccc" : "#555" }]}
+            >
+              {weather ? weather.condition : "Loading..."}
+            </Text>
+          </View>
+
+          <View style={styles.weatherStats}>
+            <View>
+              <Text
+                style={[
+                  styles.weatherLabel,
+                  { color: isDarkMode ? "#ccc" : "#444" },
+                ]}
+              >
+                Humidity
+              </Text>
+              <View style={styles.goodBadge}>
+                <Text style={styles.badgeText}>
+                  {weather ? `${weather.humidity}%` : "Analysing..."}
+                </Text>
+              </View>
+            </View>
+
+            <View>
+              <Text
+                style={[
+                  styles.weatherLabel,
+                  { color: isDarkMode ? "#ccc" : "#444" },
+                ]}
+              >
+                Soil Moisture
+              </Text>
+              <View
+                style={[
+                  styles.goodBadge,
+                  {
+                    backgroundColor:
+                      weather?.soilMoisture === "High"
+                        ? "#DFF5E4"
+                        : weather?.soilMoisture === "Moderate"
+                          ? "#F7E5D2"
+                          : "#FADBD8",
+                  },
+                ]}
+              >
+                <Text style={styles.badgeText}>
+                  {weather ? weather.soilMoisture : "Comparing..."}
+                </Text>
+              </View>
+            </View>
+
+            <View>
+              <Text
+                style={[
+                  styles.weatherLabel,
+                  { color: isDarkMode ? "#ccc" : "#444" },
+                ]}
+              >
+                Precipitation
+              </Text>
+              <View style={styles.lowBadge}>
+                <Text style={styles.badgeText}>
+                  {weather ? `${weather.precipitation}mm` : "Calculating..."}
+                </Text>
+              </View>
+            </View>
+          </View>
+        </View>
+
+        <TouchableOpacity
+          style={styles.mainButton}
+          onPress={() => router.push("/(tabs)/recommendation")}
+        >
+          <Text style={styles.mainButtonText}>Get Crop Recommendation</Text>
+          <Ionicons name="arrow-forward" size={20} color="white" />
+        </TouchableOpacity>
+
+        {/* SECTION + GRID */}
+        <View style={{ flex: 1, justifyContent: "flex-end" }}>
+          <Text
+            style={[
+              styles.sectionTitle,
+              { color: isDarkMode ? "#fff" : "#000" },
+            ]}
+          >
+            CROP RECOMMENDATION AND YIELD PREDICTION SYSTEM
+          </Text>
+
+          <View style={styles.grid}>
+            {["My Farm", "Crops", "Inventory", "Balance"].map((title, idx) => (
+              <TouchableOpacity
+                key={idx}
+                style={[
+                  styles.card,
+                  { backgroundColor: isDarkMode ? "#444" : "#F7F4F0" },
+                ]}
+              >
+                <Image
+                  source={require("../../assets/images/icon.png")}
+                  style={styles.cardImage}
+                />
+                <Text
+                  style={[
+                    styles.cardText,
+                    { color: isDarkMode ? "#fff" : "#000" },
+                  ]}
+                >
+                  {title}
+                </Text>
+              </TouchableOpacity>
+            ))}
+          </View>
         </View>
       </View>
-    </View>
+    </ScrollView>
   );
 }
 
