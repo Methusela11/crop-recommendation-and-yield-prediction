@@ -29,6 +29,8 @@ export default function Home() {
         <View style={styles.header}>
           <Text style={styles.title}>Crop Prediction Model</Text>
 
+          <Text style={styles.title1}>Welcome to the Future of Farming</Text>
+
           <TouchableOpacity
             style={styles.mainButton}
             onPress={() => router.push("/(tabs)/recommendation")}
@@ -103,6 +105,13 @@ const styles = StyleSheet.create({
 
   title: {
     fontSize: 32,
+    fontWeight: "bold",
+    color: "white",
+    marginBottom: 20,
+  },
+
+  title1: {
+    fontSize: 20,
     fontWeight: "bold",
     color: "white",
     marginBottom: 20,
