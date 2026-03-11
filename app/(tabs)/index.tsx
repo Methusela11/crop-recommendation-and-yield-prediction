@@ -42,7 +42,7 @@ export default function Home() {
         <View style={styles.statsContainer}>
           <View style={styles.statBox}>
             <Ionicons name="leaf" size={24} color="green" />
-            <Text style={styles.statValue}>Analysing...</Text>
+            <Text style={styles.statValue}>Calculating...</Text>
             <Text style={styles.statLabel}>Harvest</Text>
           </View>
 
@@ -52,6 +52,9 @@ export default function Home() {
             <Text style={styles.statLabel}>Fertilizer</Text>
           </View>
         </View>
+
+        {/* Spacer pushes cards down */}
+        <View style={{ flex: 1 }} />
 
         {/* Feature Cards */}
         <View style={styles.cardsContainer}>
@@ -89,7 +92,8 @@ const styles = StyleSheet.create({
   },
 
   overlay: {
-    padding: 20,
+    flex: 1,
+    padding: 15,
   },
 
   header: {
