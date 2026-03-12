@@ -9,9 +9,9 @@ export default function CustomTabBar({ state, navigation }: BottomTabBarProps) {
         style={styles.navItem}
         onPress={() => navigation.navigate("index")}
       >
-        <Feather
-          name="home"
-          size={20}
+        <Ionicons
+          name="home-outline"
+          size={30}
           color={state.index === 0 ? "#16a34a" : "#777"}
         />
         <Text style={state.index === 0 ? styles.navTextActive : styles.navText}>
@@ -25,7 +25,7 @@ export default function CustomTabBar({ state, navigation }: BottomTabBarProps) {
       >
         <Ionicons
           name="leaf-outline"
-          size={20}
+          size={30}
           color={state.index === 1 ? "#16a34a" : "#777"}
         />
         <Text style={state.index === 1 ? styles.navTextActive : styles.navText}>
@@ -37,7 +37,7 @@ export default function CustomTabBar({ state, navigation }: BottomTabBarProps) {
         style={styles.cameraButton}
         onPress={() => navigation.navigate("camera")}
       >
-        <Ionicons name="camera" size={24} color="white" />
+        <Ionicons name="camera" size={25} color="white" />
       </TouchableOpacity>
 
       <TouchableOpacity
@@ -46,7 +46,7 @@ export default function CustomTabBar({ state, navigation }: BottomTabBarProps) {
       >
         <Feather
           name="users"
-          size={20}
+          size={30}
           color={state.index === 3 ? "#16a34a" : "#777"}
         />
         <Text style={state.index === 3 ? styles.navTextActive : styles.navText}>
@@ -60,7 +60,7 @@ export default function CustomTabBar({ state, navigation }: BottomTabBarProps) {
       >
         <Feather
           name="user"
-          size={20}
+          size={30}
           color={state.index === 4 ? "#16a34a" : "#777"}
         />
         <Text style={state.index === 4 ? styles.navTextActive : styles.navText}>
@@ -80,6 +80,7 @@ const styles = StyleSheet.create({
     borderRadius: 25,
     padding: 10,
     margin: 10,
+    height: 100,
   },
 
   navItem: {
@@ -87,17 +88,17 @@ const styles = StyleSheet.create({
   },
 
   navText: {
-    fontSize: 11,
+    fontSize: 8,
     color: "#777",
   },
 
   navTextActive: {
-    fontSize: 11,
-    color: "#16a34a",
+    fontSize: 10,
+    color: "#0f6e02",
   },
 
   cameraButton: {
-    backgroundColor: "#16a34a",
+    backgroundColor: "#0f6e02",
     width: 55,
     height: 55,
     borderRadius: 30,

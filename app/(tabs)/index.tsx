@@ -18,7 +18,7 @@ import { recommendCrops } from "../../services/cropDatasetService";
 export default function Home() {
   const [isDarkMode, setIsDarkMode] = useState(false);
   const [address, setAddress] = useState<string>("Fetching location...");
-  const [loadingLocation, setLoadingLocation] = useState(true);
+  const [loadingLocation, setLoadingLocation] = useState(false);
   const [refreshing, setRefreshing] = useState(false);
 
   const onRefresh = async () => {
@@ -43,7 +43,7 @@ export default function Home() {
 
   useEffect(() => {
     fetchLocationAndWeather();
-  });
+  }, []);
 
   // Calculate soil moisture based on humidity and precipitation
   const getSoilMoisture = (humidity: number, precipitation: number) => {
@@ -53,6 +53,7 @@ export default function Home() {
   };
 
   const fetchLocationAndWeather = async () => {
+    if (loadingLocation) return;
     setLoadingLocation(true);
 
     const { status } = await Location.requestForegroundPermissionsAsync();
@@ -172,7 +173,7 @@ export default function Home() {
       <View
         style={[
           styles.container,
-          { backgroundColor: isDarkMode ? "#272626" : "#c4bca2" },
+          { backgroundColor: isDarkMode ? "#272626" : "#b6ac8c" },
         ]}
       >
         {/* HEADER */}
@@ -227,7 +228,7 @@ export default function Home() {
         <View
           style={[
             styles.weatherCard,
-            { backgroundColor: isDarkMode ? "#555" : "#F5C77C" },
+            { backgroundColor: isDarkMode ? "#555" : "#f8f6f4" },
           ]}
         >
           <View>

@@ -10,7 +10,7 @@ export default function Recommendation() {
       <Text style={styles.title}>Recommended Crops</Text>
 
       {crops.length === 0 ? (
-        <Text>No crops found for current conditions</Text>
+        <Text style={styles.text1}>No crops found for current conditions</Text>
       ) : (
         crops.map((crop: string, index: number) => (
           <View key={index} style={styles.card}>
@@ -23,8 +23,9 @@ export default function Recommendation() {
 }
 
 const styles = StyleSheet.create({
-  container: { flex: 1, padding: 20 },
-  title: { fontSize: 22, fontWeight: "bold", marginBottom: 20 },
+  container: { flex: 1, padding: 20, marginTop: 80 },
+  title: { fontSize: 22, fontWeight: "bold", marginBottom: 20, color: "#ffff" },
+  text1: { color: "#ffff"  },
   card: {
     backgroundColor: "#0f6e02",
     padding: 15,
