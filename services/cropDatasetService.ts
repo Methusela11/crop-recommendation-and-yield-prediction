@@ -5,24 +5,35 @@ export const recommendCrops = (
   humidity: number,
   rainfall: number,
 ): string[] => {
-  const matches: Record<string, boolean> = {};
+  // Estimate soil nutrients (simple approximation)
+  const estimatedN = humidity > 60 ? 80 : 40;
+  const estimatedP = rainfall > 100 ? 60 : 40;
+  const estimatedK = temperature > 25 ? 50 : 30;
+  const estimatedPH = 6.5;
+
+  const scores: { crop: string; score: number }[] = [];
 
   dataset.forEach((row: any) => {
-    const temp = parseFloat(row.temperature);
-    const hum = parseFloat(row.humidity);
-    const rain = parseFloat(row.rainfall);
-    const crop = row.label;
+    const score =
+      Math.abs(row.N - estimatedN) +
+      Math.abs(row.P - estimatedP) +
+      Math.abs(row.K - estimatedK) +
+      Math.abs(row.temperature - temperature) +
+      Math.abs(row.humidity - humidity) +
+      Math.abs(row.ph - estimatedPH) +
+      Math.abs(row.rainfall - rainfall);
 
-    // Check if current weather is close to crop's preferred range
-    if (
-      Math.abs(temp - temperature) < 5 &&
-      Math.abs(hum - humidity) < 15 &&
-      Math.abs(rain - rainfall) < 50
-    ) {
-      matches[crop] = true;
-    }
+    scores.push({
+      crop: row.label,
+      score: score,
+    });
   });
 
-  return Object.keys(matches);
-};
+  // Sort by best match
+  scores.sort((a, b) => a.score - b.score);
 
+  // Remove duplicates and return top crops
+  const unique = [...new Set(scores.map((s) => s.crop))];
+
+  return unique.slice(0, 5);
+};

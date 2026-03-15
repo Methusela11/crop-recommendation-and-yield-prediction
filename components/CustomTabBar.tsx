@@ -50,7 +50,7 @@ export default function CustomTabBar({ state, navigation }: BottomTabBarProps) {
           color={state.index === 3 ? "#16a34a" : "#777"}
         />
         <Text style={state.index === 3 ? styles.navTextActive : styles.navText}>
-          Groups
+          Feeds
         </Text>
       </TouchableOpacity>
 
@@ -64,7 +64,7 @@ export default function CustomTabBar({ state, navigation }: BottomTabBarProps) {
           color={state.index === 4 ? "#16a34a" : "#777"}
         />
         <Text style={state.index === 4 ? styles.navTextActive : styles.navText}>
-          Profile
+          My Farm
         </Text>
       </TouchableOpacity>
     </View>

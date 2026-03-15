@@ -64,7 +64,9 @@ export default function Home() {
     }
 
     try {
-      const loc = await Location.getCurrentPositionAsync({});
+      const loc = await Location.getCurrentPositionAsync({
+        accuracy: Location.Accuracy.Highest,
+      });
 
       let fullAddress = "";
 
@@ -86,7 +88,7 @@ export default function Home() {
       // Fallback using OpenStreetMap
       if (!fullAddress) {
         const res = await fetch(
-          `https://nominatim.openstreetmap.org/reverse?format=json&lat=${loc.coords.latitude}&lon=${loc.coords.longitude}`,
+          `https://nominatim.openstreetmap.org/reverse?lat=${loc.coords.latitude}&lon=${loc.coords.longitude}&format=json&zoom=10&addressdetails=1`,
         );
 
         const data = await res.json();
@@ -98,15 +100,15 @@ export default function Home() {
 
       // WEATHER API
       const weatherRes = await fetch(
-        `https://api.open-meteo.com/v1/forecast?latitude=${loc.coords.latitude}&longitude=${loc.coords.longitude}&current_weather=true&hourly=temperature_2m,relative_humidity_2m,precipitation`,
+        `https://api.open-meteo.com/v1/forecast?latitude=${loc.coords.latitude}&longitude=${loc.coords.longitude}&current=temperature_2m,relative_humidity_2m,precipitation,weathercode`,
       );
 
       const weatherData = await weatherRes.json();
 
-      const temperature = weatherData.current_weather.temperature;
-      const conditionCode = weatherData.current_weather.weathercode;
-      const humidity = weatherData.hourly.relative_humidity_2m[0];
-      const precipitation = weatherData.hourly.precipitation[0];
+      const temperature = weatherData.current.temperature_2m;
+      const humidity = weatherData.current.relative_humidity_2m;
+      const precipitation = weatherData.current.precipitation;
+      const conditionCode = weatherData.current.weathercode;
 
       setWeather({
         temperature,
@@ -216,11 +218,6 @@ export default function Home() {
                 color={isDarkMode ? "#fff" : "#333"}
               />
             </TouchableOpacity>
-            <Ionicons
-              name="ellipsis-horizontal"
-              size={22}
-              color={isDarkMode ? "#fff" : "#333"}
-            />
           </View>
         </View>
 
@@ -232,6 +229,17 @@ export default function Home() {
           ]}
         >
           <View>
+            <Text
+              style={[styles.cloud, { color: isDarkMode ? "#fff" : "#000" }]}
+            >
+              {new Date().toLocaleString("en-GB", {
+                weekday: "short",
+                day: "numeric",
+                month: "short",
+                hour: "2-digit",
+                minute: "2-digit",
+              })}
+            </Text>
             <Text
               style={[styles.temp, { color: isDarkMode ? "#fff" : "#000" }]}
             >
@@ -256,7 +264,7 @@ export default function Home() {
               </Text>
               <View style={styles.goodBadge}>
                 <Text style={styles.badgeText}>
-                  {weather ? `${weather.humidity}%` : "Analyzing..."}
+                  {weather ? `${weather.humidity}%` : "Calculating..."}
                 </Text>
               </View>
             </View>
@@ -309,9 +317,10 @@ export default function Home() {
 
         <TouchableOpacity
           style={styles.mainButton}
+          disabled={recommendedCrops.length === 0}
           onPress={() =>
             router.push({
-              pathname: "/(tabs)/recommendation",
+              pathname: "/recommendation",
               params: { crops: JSON.stringify(recommendedCrops) },
             })
           }
@@ -322,15 +331,6 @@ export default function Home() {
 
         {/* SECTION + GRID */}
         <View style={{ flex: 1, justifyContent: "flex-end" }}>
-          <Text
-            style={[
-              styles.sectionTitle,
-              { color: isDarkMode ? "#fff" : "#000" },
-            ]}
-          >
-            CROP RECOMMENDATION AND YIELD PREDICTION SYSTEM
-          </Text>
-
           {/* GRID */}
           <View style={styles.grid}>
             <TouchableOpacity
@@ -338,7 +338,13 @@ export default function Home() {
                 styles.card,
                 { backgroundColor: isDarkMode ? "#444" : "#F7F4F0" },
               ]}
-              onPress={() => router.push("/(tabs)/recommendation")}
+              disabled={recommendedCrops.length === 0}
+              onPress={() =>
+                router.push({
+                  pathname: "/recommendation",
+                  params: { crops: JSON.stringify(recommendedCrops) },
+                })
+              }
             >
               <Image
                 source={require("../../assets/images/crop/1.png")}
@@ -379,6 +385,7 @@ export default function Home() {
                 styles.card,
                 { backgroundColor: isDarkMode ? "#444" : "#F7F4F0" },
               ]}
+              onPress={() => router.push("/soil")}
             >
               <Image
                 source={require("../../assets/images/soil/11.png")}
@@ -431,8 +438,8 @@ const styles = StyleSheet.create({
   location: { flexDirection: "row", alignItems: "center" },
   locationText: { marginLeft: 6, fontSize: 12, fontWeight: "600" },
   weatherCard: { borderRadius: 20, padding: 20, marginTop: 50 },
-  temp: { fontSize: 28, fontWeight: "bold" },
-  cloud: { color: "#555" },
+  temp: { fontSize: 28, fontWeight: "bold", marginBottom: 10 },
+  cloud: { color: "#555", marginBottom: 20 },
   weatherStats: {
     flexDirection: "row",
     justifyContent: "space-between",

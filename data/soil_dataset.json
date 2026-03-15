@@ -1,0 +1,123 @@
+[
+  {
+    "soil_type": "Loam",
+    "ph": 6.5,
+    "nitrogen": "Medium",
+    "humidity_range": [50, 80],
+    "temperature_range": [18, 30],
+    "crops": ["Maize", "Beans", "Irish Potato", "Tomato", "Cabbage"]
+  },
+  {
+    "soil_type": "Sandy",
+    "ph": 6.0,
+    "nitrogen": "Low",
+    "humidity_range": [20, 50],
+    "temperature_range": [22, 35],
+    "crops": ["Millet", "Cassava", "Groundnut", "Watermelon", "Sorghum"]
+  },
+  {
+    "soil_type": "Clay",
+    "ph": 7.2,
+    "nitrogen": "High",
+    "humidity_range": [60, 90],
+    "temperature_range": [18, 30],
+    "crops": ["Rice", "Sugarcane", "Beans", "Banana"]
+  },
+  {
+    "soil_type": "Sandy Loam",
+    "ph": 6.4,
+    "nitrogen": "Medium",
+    "humidity_range": [40, 70],
+    "temperature_range": [20, 32],
+    "crops": ["Maize", "Onion", "Tomato", "Green Gram", "Cowpea"]
+  },
+  {
+    "soil_type": "Clay Loam",
+    "ph": 6.8,
+    "nitrogen": "High",
+    "humidity_range": [55, 85],
+    "temperature_range": [18, 28],
+    "crops": ["Rice", "Wheat", "Soybean", "Beans"]
+  },
+  {
+    "soil_type": "Volcanic",
+    "ph": 6.7,
+    "nitrogen": "High",
+    "humidity_range": [55, 90],
+    "temperature_range": [15, 26],
+    "crops": ["Maize", "Coffee", "Banana", "Avocado"]
+  },
+  {
+    "soil_type": "Alluvial",
+    "ph": 6.8,
+    "nitrogen": "Medium",
+    "humidity_range": [50, 85],
+    "temperature_range": [18, 30],
+    "crops": ["Rice", "Sugarcane", "Wheat"]
+  },
+  {
+    "soil_type": "Red Soil",
+    "ph": 6.2,
+    "nitrogen": "Low",
+    "humidity_range": [35, 65],
+    "temperature_range": [22, 34],
+    "crops": ["Groundnut", "Millet", "Pigeon Pea", "Sorghum"]
+  },
+  {
+    "soil_type": "Black Cotton Soil",
+    "ph": 7.5,
+    "nitrogen": "Medium",
+    "humidity_range": [45, 75],
+    "temperature_range": [20, 33],
+    "crops": ["Cotton", "Sunflower", "Millet"]
+  },
+  {
+    "soil_type": "Laterite",
+    "ph": 5.8,
+    "nitrogen": "Low",
+    "humidity_range": [60, 90],
+    "temperature_range": [20, 32],
+    "crops": ["Tea", "Coffee", "Cashew"]
+  },
+  {
+    "soil_type": "Loamy Sand",
+    "ph": 6.3,
+    "nitrogen": "Medium",
+    "humidity_range": [40, 70],
+    "temperature_range": [19, 33],
+    "crops": ["Sweet Potato", "Pumpkin", "Watermelon"]
+  },
+  {
+    "soil_type": "Silty",
+    "ph": 6.8,
+    "nitrogen": "Medium",
+    "humidity_range": [55, 85],
+    "temperature_range": [17, 29],
+    "crops": ["Wheat", "Soybean", "Tomato"]
+  },
+  {
+    "soil_type": "Peaty",
+    "ph": 5.5,
+    "nitrogen": "High",
+    "humidity_range": [70, 95],
+    "temperature_range": [15, 25],
+    "crops": ["Carrot", "Lettuce", "Spinach"]
+  },
+  {
+    "soil_type": "Chalky",
+    "ph": 7.8,
+    "nitrogen": "Low",
+    "humidity_range": [30, 60],
+    "temperature_range": [18, 32],
+    "crops": ["Barley", "Cabbage", "Beetroot"]
+  },
+  {
+    "soil_type": "Volcanic Ash",
+    "ph": 6.6,
+    "nitrogen": "High",
+    "humidity_range": [50, 80],
+    "temperature_range": [16, 27],
+    "crops": ["Tea", "Coffee", "Avocado", "Banana"]
+  }
+]
+

@@ -3,7 +3,14 @@ import { StyleSheet, Text, View } from "react-native";
 
 export default function Recommendation() {
   const params = useLocalSearchParams();
-  const crops = params.crops ? JSON.parse(params.crops as string) : [];
+
+  let crops: string[] = [];
+
+  try {
+    crops = params.crops ? JSON.parse(params.crops as string) : [];
+  } catch (err) {
+    crops = [];
+  }
 
   return (
     <View style={styles.container}>
@@ -25,7 +32,7 @@ export default function Recommendation() {
 const styles = StyleSheet.create({
   container: { flex: 1, padding: 20, marginTop: 80 },
   title: { fontSize: 22, fontWeight: "bold", marginBottom: 20, color: "#ffff" },
-  text1: { color: "#ffff"  },
+  text1: { color: "#ffff" },
   card: {
     backgroundColor: "#0f6e02",
     padding: 15,

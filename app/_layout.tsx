@@ -26,6 +26,8 @@ export default function RootLayout() {
         {/* Start / onboarding screen */}
         <Stack.Screen name="index" options={{ headerShown: false }} />
 
+        <Stack.Screen name="soil" options={{ headerShown: false }} />
+
         {/* Tabs */}
         <Stack.Screen name="(tabs)" options={{ headerShown: false }} />
 

@@ -1,13 +1,13 @@
 import { router } from "expo-router";
-import { useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import {
-    Dimensions,
-    FlatList,
-    Image,
-    StyleSheet,
-    Text,
-    TouchableOpacity,
-    View,
+  Dimensions,
+  FlatList,
+  Image,
+  StyleSheet,
+  Text,
+  TouchableOpacity,
+  View,
 } from "react-native";
 
 const { width } = Dimensions.get("window");
@@ -32,6 +32,26 @@ const slides = [
 
 export default function Index() {
   const [activeIndex, setActiveIndex] = useState(0);
+  const flatListRef = useRef<FlatList>(null);
+
+  useEffect(() => {
+    const interval = setInterval(() => {
+      let nextIndex = activeIndex + 1;
+
+      if (nextIndex >= slides.length) {
+        nextIndex = 0;
+      }
+
+      flatListRef.current?.scrollToIndex({
+        index: nextIndex,
+        animated: true,
+      });
+
+      setActiveIndex(nextIndex);
+    }, 3000);
+
+    return () => clearInterval(interval);
+  }, [activeIndex]);
 
   return (
     <View style={styles.container}>
@@ -40,11 +60,12 @@ export default function Index() {
         source={require("../assets/images/photo.jpeg")}
         style={styles.image}
         resizeMode="cover"
-            />
+      />
 
       {/* Bottom Card */}
       <View style={styles.card}>
         <FlatList
+          ref={flatListRef}
           data={slides}
           horizontal
           pagingEnabled
