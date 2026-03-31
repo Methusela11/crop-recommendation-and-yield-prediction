@@ -5,6 +5,7 @@ import { useRouter } from "expo-router";
 import { useEffect, useState } from "react";
 import {
   Image,
+  ImageBackground,
   ImageSourcePropType,
   Pressable,
   RefreshControl,
@@ -200,49 +201,55 @@ export default function Home() {
 
   return (
     <View style={styles.container}>
-      <View style={styles.header}>
-        <View style={styles.headerTop}>
-          <View>
-            <Text style={styles.hello}>
-              Hello, <Text style={styles.bold}>Farmers</Text>
-            </Text>
-            <Text style={styles.date}>
-              {new Date().toLocaleDateString("en-US", {
-                weekday: "long",
-                day: "2-digit",
-                month: "short",
-                year: "numeric",
-              })}
-              {"\n"}
-              {new Date().toLocaleTimeString("en-US", {
-                hour: "2-digit",
-                minute: "2-digit",
-              })}
-            </Text>
-          </View>
-          <View style={styles.profileCircle}>
-            <Ionicons name="person-outline" size={20} color="#000" />
-          </View>
-        </View>
-
-        <View style={styles.search}>
-          <View style={styles.locationContainer}>
-            <Ionicons name="location-outline" size={20} color="#ec0e0e" />
-            <Text style={styles.location}>
-              {loading ? "Fetching..." : error ? "Error" : weatherData?.city}
-            </Text>
+      <ImageBackground
+        source={require("../../assets/images/photo.jpeg")}
+        style={styles.header}
+        resizeMode="cover"
+      >
+        <View>
+          <View style={styles.headerTop}>
+            <View>
+              <Text style={styles.hello}>
+                Hello, <Text style={styles.bold}>Farmers</Text>
+              </Text>
+              <Text style={styles.date}>
+                {new Date().toLocaleDateString("en-US", {
+                  weekday: "long",
+                  day: "2-digit",
+                  month: "short",
+                  year: "numeric",
+                })}
+                {"\n"}
+                {new Date().toLocaleTimeString("en-US", {
+                  hour: "2-digit",
+                  minute: "2-digit",
+                })}
+              </Text>
+            </View>
+            <View style={styles.profileCircle}>
+              <Ionicons name="person-outline" size={20} color="#000" />
+            </View>
           </View>
 
-          <Pressable onPress={fetchWeather}>
-            <Ionicons
-              name="reload"
-              size={18}
-              color="#020000"
-              style={{ opacity: loading ? 0.5 : 1 }}
-            />
-          </Pressable>
+          <View style={styles.search}>
+            <View style={styles.locationContainer}>
+              <Ionicons name="location-outline" size={20} color="#ec0e0e" />
+              <Text style={styles.location}>
+                {loading ? "Fetching..." : error ? "Error" : weatherData?.city}
+              </Text>
+            </View>
+
+            <Pressable onPress={fetchWeather}>
+              <Ionicons
+                name="reload"
+                size={18}
+                color="#020000"
+                style={{ opacity: loading ? 0.5 : 1 }}
+              />
+            </Pressable>
+          </View>
         </View>
-      </View>
+      </ImageBackground>
 
       <ScrollView
         style={styles.scroll}
@@ -519,8 +526,13 @@ export default function Home() {
 
 const styles = StyleSheet.create({
   container: { flex: 1, backgroundColor: "#F3F3E8" },
+
+  image: {
+    width: "100%",
+    height: "60%",
+  },
+
   header: {
-    backgroundColor: "#297904",
     paddingTop: 60,
     paddingBottom: 40,
     paddingHorizontal: 20,
