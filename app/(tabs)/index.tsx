@@ -203,6 +203,7 @@ export default function Home() {
     <View style={styles.container}>
       <ImageBackground
         source={require("../../assets/images/photo.jpeg")}
+        imageStyle={styles.image}
         style={styles.header}
         resizeMode="cover"
       >
@@ -227,26 +228,24 @@ export default function Home() {
               </Text>
             </View>
             <View style={styles.profileCircle}>
-              <Ionicons name="person-outline" size={20} color="#000" />
+              <Pressable onPress={fetchWeather}>
+                <Ionicons
+                  name="reload"
+                  size={22}
+                  color="#020000"
+                  style={{ opacity: loading ? 0.5 : 1 }}
+                />
+              </Pressable>
             </View>
           </View>
 
           <View style={styles.search}>
             <View style={styles.locationContainer}>
-              <Ionicons name="location-outline" size={20} color="#ec0e0e" />
+              <Ionicons name="search-outline" size={20} color="#030303" />
               <Text style={styles.location}>
-                {loading ? "Fetching..." : error ? "Error" : weatherData?.city}
+                Search for a specific location
               </Text>
             </View>
-
-            <Pressable onPress={fetchWeather}>
-              <Ionicons
-                name="reload"
-                size={18}
-                color="#020000"
-                style={{ opacity: loading ? 0.5 : 1 }}
-              />
-            </Pressable>
           </View>
         </View>
       </ImageBackground>
@@ -527,17 +526,24 @@ export default function Home() {
 const styles = StyleSheet.create({
   container: { flex: 1, backgroundColor: "#F3F3E8" },
 
-  image: {
-    width: "100%",
-    height: "60%",
-  },
-
   header: {
     paddingTop: 60,
     paddingBottom: 40,
     paddingHorizontal: 20,
     borderBottomLeftRadius: 30,
     borderBottomRightRadius: 30,
+    overflow: "hidden", // ✅ VERY IMPORTANT
+  },
+
+  image: {
+    borderBottomLeftRadius: 30,
+    borderBottomRightRadius: 30,
+  },
+
+  overlay: {
+    backgroundColor: "rgba(0,0,0,0.4)",
+    flex: 1,
+    justifyContent: "flex-end",
   },
   headerTop: {
     flexDirection: "row",
