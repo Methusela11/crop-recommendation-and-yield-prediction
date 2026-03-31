@@ -4,6 +4,7 @@ import * as Location from "expo-location";
 import { useRouter } from "expo-router";
 import { useEffect, useState } from "react";
 import {
+  Alert,
   Image,
   ImageBackground,
   ImageSourcePropType,
@@ -12,6 +13,7 @@ import {
   ScrollView,
   StyleSheet,
   Text,
+  TextInput,
   View,
 } from "react-native";
 
@@ -153,6 +155,7 @@ export default function Home() {
   const [weatherData, setWeatherData] = useState<WeatherData | null>(null);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
+  const [searchQuery, setSearchQuery] = useState("");
   const [refreshing, setRefreshing] = useState(false);
   const navigation = useNavigation<any>();
   const router = useRouter();
@@ -199,6 +202,41 @@ export default function Home() {
     fetchWeather();
   }, []);
 
+  const searchLocation = async () => {
+    if (!searchQuery) return;
+
+    try {
+      setLoading(true);
+
+      const results = await Location.geocodeAsync(searchQuery);
+
+      if (results.length === 0) {
+        Alert.alert("Location not found");
+        setLoading(false);
+        return;
+      }
+
+      const { latitude, longitude } = results[0];
+
+      console.log("Searched location:", latitude, longitude);
+
+      const BASE_URL =
+        "https://57cb-41-220-233-110.ngrok-free.app/api/live-data/";
+
+      const res = await fetch(`${BASE_URL}?lat=${latitude}&lon=${longitude}`);
+
+      const data: WeatherData = await res.json();
+
+      setWeatherData(data);
+      setError(null);
+    } catch (err: any) {
+      console.log(err);
+      setError("Failed to fetch location data");
+    } finally {
+      setLoading(false);
+    }
+  };
+
   return (
     <View style={styles.container}>
       <ImageBackground
@@ -240,12 +278,20 @@ export default function Home() {
           </View>
 
           <View style={styles.search}>
-            <View style={styles.locationContainer}>
-              <Ionicons name="search-outline" size={20} color="#030303" />
-              <Text style={styles.location}>
-                Search for a specific location
-              </Text>
-            </View>
+            <Ionicons name="search-outline" size={20} color="#030303" />
+
+            <TextInput
+              placeholder="Search town e.g Kilifi"
+              value={searchQuery}
+              onChangeText={setSearchQuery}
+              onSubmitEditing={searchLocation}
+              style={styles.searchInput}
+              placeholderTextColor="#333"
+            />
+
+            <Pressable onPress={searchLocation}>
+              <Ionicons name="arrow-forward" size={20} color="#000" />
+            </Pressable>
           </View>
         </View>
       </ImageBackground>
@@ -598,6 +644,7 @@ const styles = StyleSheet.create({
     color: "#000000",
   },
   searchInput: { flex: 1, marginLeft: 10, color: "#fff" },
+
   scroll: { flex: 1 },
   scrollContent: { paddingTop: 60, paddingBottom: 120 },
   weatherCard: {
