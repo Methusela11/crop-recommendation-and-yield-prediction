@@ -4,7 +4,6 @@ import { Stack, useLocalSearchParams, useRouter } from "expo-router";
 import { useEffect, useState } from "react";
 import {
   ActivityIndicator,
-  ImageBackground,
   Pressable,
   ScrollView,
   StyleSheet,
@@ -214,206 +213,212 @@ export default function CropDetails() {
       <Stack.Screen options={{ headerShown: false }} />
 
       <View style={styles.container}>
-        {/* HERO */}
-        <ImageBackground source={{ uri: CROP_BG }} style={styles.hero}>
-          <View style={styles.heroOverlay}>
-            <Pressable onPress={() => router.back()}>
-              <Ionicons name="arrow-back" size={24} color="#fff" />
-            </Pressable>
+        <View style={styles.header}>
+          <Pressable onPress={() => router.back()} style={styles.backButton}>
+            <Ionicons name="arrow-back" size={24} color="#fff" />
+          </Pressable>
+          <Text style={styles.hello}>Crop Details</Text>
+        </View>
 
-            <Text style={styles.heroTitle}>{displayName}</Text>
-            <Text style={styles.heroSub}>{category}</Text>
-          </View>
-        </ImageBackground>
+        <ScrollView contentContainerStyle={styles.scrollContent}>
+          <Text style={styles.title}>{displayName}</Text>
+          <Text style={styles.category}>{category}</Text>
 
-        <ScrollView style={styles.scroll}>
-          {/* SUITABILITY */}
-          <View style={styles.infoCard}>
-            <Text style={styles.sectionTitle}>🌱 Suitability</Text>
-
-            <Text style={styles.bigScore}>
+          <View style={styles.card}>
+            <Text style={styles.cardTitle}>Suitability Score</Text>
+            <Text style={styles.score}>
               {suitability ? `${suitability.value.toFixed(0)}%` : `${score}%`}
             </Text>
-
-            <Text style={styles.suitabilityStatus}>{suitability?.status}</Text>
           </View>
 
-          {/* FORECAST */}
-          <Text style={styles.sectionTitle}>🌦 Seasonal Forecast</Text>
+          <View style={styles.commodityCard}>
+            <Text style={styles.commodityCard}>
+              <Text style={styles.cardTitle}>
+                Seasonal Forecast (Next 4 Months)
+              </Text>
+            </Text>
 
-          <View style={{ paddingHorizontal: 16 }}>
             {loadingForecast ? (
-              <ActivityIndicator size="large" color="#2E7D32" />
+              <Text>Loading forecast...</Text>
+            ) : forecast.length === 0 ? (
+              <Text style={{ color: "#777" }}>Forecast not available</Text>
             ) : (
-              forecast.map((month, index) => (
-                <View key={index} style={styles.calBlock}>
-                  <Text style={styles.calSeasonLabel}>{month.month}</Text>
+              <>
+                {forecast.map((month, index) => (
+                  <View key={index} style={{ marginTop: 8 }}>
+                    <Text style={styles.subTitle}>{month.month}</Text>
+                    <Text style={styles.text}>Temp: {month.temp}°C</Text>
+                    <Text style={styles.text}>
+                      Rainfall: {month.rainfall} mm
+                    </Text>
+                    <Text style={styles.text}>Humidity: {month.humidity}%</Text>
+                  </View>
+                ))}
 
-                  <Text style={styles.calValue}>🌡 Temp: {month.temp}°C</Text>
-                  <Text style={styles.calValue}>
-                    🌧 Rainfall: {month.rainfall} mm
+                {suitability && (
+                  <Text style={styles.suitability}>
+                    Suitability: {suitability.status} (
+                    {suitability.value.toFixed(0)}%)
                   </Text>
-                  <Text style={styles.calValue}>
-                    💧 Humidity: {month.humidity}%
-                  </Text>
-                </View>
-              ))
+                )}
+              </>
             )}
           </View>
 
-          {/* ADVISORY */}
-          <View style={styles.infoCard}>
-            <Text style={styles.sectionTitle}>⚠️ Advisory</Text>
-            <Text style={styles.soilDesc}>{getWarning()}</Text>
-          </View>
+          {loadingForecast ? (
+            <View style={styles.card}>
+              <Text style={styles.cardTitle}>🌦 Forecasting</Text>
 
-          {/* INSIGHT */}
-          <View style={styles.infoCard}>
-            <Text style={styles.sectionTitle}>🌤 Seasonal Insight</Text>
-            <Text style={styles.soilDesc}>{getWeatherQuote()}</Text>
-          </View>
+              {loadingForecast ? (
+                <>
+                  <Text style={styles.text}>
+                    Forecasting for the season... please wait
+                  </Text>
+                  <ActivityIndicator size="small" color="#297904" />
+                </>
+              ) : forecast.length === 0 ? (
+                <Text style={styles.text}>Forecast not available</Text>
+              ) : (
+                <>
+                  <Text
+                    style={[
+                      styles.text,
+                      { fontWeight: "700", color: "#297904" },
+                    ]}
+                  >
+                    {getSeasonLabel()}
+                  </Text>
 
-          {/* FARMING ADVICE */}
-          <View style={styles.infoCard}>
-            <Text style={styles.sectionTitle}>🌱 Farming Advice</Text>
+                  <Text style={styles.text}>
+                    Forecast Period: {getMonthRange()}
+                  </Text>
+                </>
+              )}
+            </View>
+          ) : (
+            <>
+              <View style={styles.card}>
+                <Text style={styles.cardTitle}>⚠️ Advisory</Text>
+                <Text style={styles.text}>
+                  {getWarning() || "No advisory available"}
+                </Text>
+              </View>
 
-            {getAdvice().map((tip, i) => (
-              <Text key={i} style={styles.listItem}>
-                • {tip}
-              </Text>
-            ))}
-          </View>
+              <View style={styles.card}>
+                <Text style={styles.cardTitle}>🌦 Seasonal Insight</Text>
+                <Text style={styles.text}>
+                  {getWeatherQuote() || "No insight available"}
+                </Text>
+              </View>
 
-          {/* AWARENESS */}
-          <View style={styles.infoCard}>
-            <Text style={styles.sectionTitle}>📘 Awareness</Text>
+              <View style={styles.card}>
+                <Text style={styles.cardTitle}>🌱 Farming Advice</Text>
 
-            {getInsights().map((item, i) => (
-              <Text key={i} style={styles.listItem}>
-                • {item}
-              </Text>
-            ))}
-          </View>
+                {getAdvice().length > 0 ? (
+                  getAdvice().map((tip, i) => (
+                    <Text key={i} style={styles.text}>
+                      • {tip}
+                    </Text>
+                  ))
+                ) : (
+                  <Text style={styles.text}>No advice available</Text>
+                )}
+              </View>
 
-          {/* FERTILIZER */}
-          <View style={styles.infoCard}>
-            <Text style={styles.sectionTitle}>🧪 Fertilizer Guide</Text>
+              <View style={styles.card}>
+                <Text style={styles.cardTitle}>📘 Awareness</Text>
+
+                {getInsights().length > 0 ? (
+                  getInsights().map((item, i) => (
+                    <Text key={i} style={styles.text}>
+                      • {item}
+                    </Text>
+                  ))
+                ) : (
+                  <Text style={styles.text}>No insights available</Text>
+                )}
+              </View>
+            </>
+          )}
+
+          <View style={styles.card}>
+            <Text style={styles.cardTitle}>Fertilizer</Text>
 
             {fertilizerData ? (
               fertilizerData.fertilizers.basal.map((f, i) => (
-                <View key={i} style={styles.fertCard}>
-                  <Text style={styles.fertName}>{f}</Text>
-                </View>
+                <Text key={i} style={styles.text}>
+                  • {f}
+                </Text>
               ))
             ) : (
-              <Text style={styles.soilDesc}>No fertilizer data</Text>
+              <Text>No fertilizer data</Text>
             )}
           </View>
 
-          <View style={{ height: 40 }} />
+          <View style={{ height: 80 }} />
         </ScrollView>
       </View>
     </>
   );
 }
 
-const CROP_BG =
-  "https://images.unsplash.com/photo-1500382017468-9049fed747ef?w=800&q=80";
-
 const styles = StyleSheet.create({
-  container: { flex: 1, backgroundColor: "#F5F5F5" },
+  container: { flex: 1, backgroundColor: "#F3F3E8" },
 
-  hero: { height: 180, width: "100%" },
-
-  heroOverlay: {
-    flex: 1,
-    backgroundColor: "rgba(0,0,0,0.45)",
-    justifyContent: "flex-end",
-    padding: 16,
+  header: {
+    backgroundColor: "#297904",
+    paddingTop: 60,
+    paddingBottom: 40,
+    paddingHorizontal: 20,
+    flexDirection: "row",
+    alignItems: "center",
   },
 
-  heroTitle: { fontSize: 24, fontWeight: "bold", color: "#fff" },
-  heroSub: { fontSize: 13, color: "#ddd" },
+  backButton: { marginRight: 15 },
 
-  scroll: { flex: 1 },
+  hello: { fontSize: 20, color: "#fff", fontWeight: "700" },
 
-  sectionTitle: {
-    fontSize: 15,
-    fontWeight: "700",
-    color: "#1B5E20",
-    marginHorizontal: 16,
-    marginTop: 16,
-    marginBottom: 8,
+  scrollContent: { padding: 10 },
+
+  title: { fontSize: 24, fontWeight: "bold" },
+
+  category: { color: "#297904", marginBottom: 10 },
+
+  card: {
+    backgroundColor: "#def3ea",
+    padding: 10,
+    borderRadius: 15,
+    marginTop: 15,
   },
 
-  infoCard: {
-    marginHorizontal: 16,
-    backgroundColor: "#fff",
-    borderRadius: 12,
-    padding: 14,
+  commodityCard: {
+    backgroundColor: "#def3ea",
+    padding: 5,
+    borderRadius: 20,
     marginTop: 10,
     shadowColor: "#000",
     shadowOpacity: 0.08,
-    shadowRadius: 6,
-    elevation: 3,
+    shadowRadius: 10,
+    shadowOffset: { width: 0, height: 4 },
+    elevation: 4,
+    width: "100%",
+    alignSelf: "center",
+    marginBottom: 20,
   },
 
-  bigScore: {
-    fontSize: 32,
+  cardTitle: { fontWeight: "700" },
+
+  text: { marginTop: 5, padding: 5 },
+
+  score: { fontSize: 22, fontWeight: "bold", color: "#297904" },
+
+  subTitle: { fontWeight: "700", marginTop: 5 },
+
+  suitability: {
+    padding: 5,
+    marginTop: 10,
     fontWeight: "bold",
-    color: "#2E7D32",
-  },
-
-  suitabilityStatus: {
-    fontSize: 14,
-    fontWeight: "700",
-    color: "#388E3C",
-    marginTop: 4,
-  },
-
-  soilDesc: {
-    fontSize: 13,
-    color: "#555",
-    lineHeight: 18,
-  },
-
-  listItem: {
-    fontSize: 13,
-    color: "#555",
-    marginVertical: 3,
-  },
-
-  calBlock: {
-    backgroundColor: "#F1F8E9",
-    borderRadius: 10,
-    padding: 12,
-    marginBottom: 10,
-  },
-
-  calSeasonLabel: {
-    fontSize: 14,
-    fontWeight: "700",
-    color: "#2E7D32",
-    marginBottom: 6,
-  },
-
-  calValue: {
-    fontSize: 13,
-    color: "#555",
-  },
-
-  fertCard: {
-    backgroundColor: "#FFF8E1",
-    borderRadius: 10,
-    padding: 10,
-    marginTop: 6,
-    borderLeftWidth: 4,
-    borderLeftColor: "#F57C00",
-  },
-
-  fertName: {
-    fontSize: 13,
-    fontWeight: "600",
-    color: "#333",
+    color: "#297904",
+    alignSelf: "center",
   },
 });
