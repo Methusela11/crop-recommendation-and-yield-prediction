@@ -8,6 +8,7 @@ import {
   Image,
   ImageBackground,
   ImageSourcePropType,
+  Platform,
   Pressable,
   RefreshControl,
   ScrollView,
@@ -162,37 +163,41 @@ export default function Home() {
 
   const fetchWeather = async () => {
     try {
-      const { status } = await Location.requestForegroundPermissionsAsync();
-      if (status !== "granted") {
-        throw new Error("Location permission denied");
+      let lat, lon;
+
+      if (Platform.OS === "web") {
+        const position = (await new Promise((resolve, reject) => {
+          navigator.geolocation.getCurrentPosition(resolve, reject);
+        })) as GeolocationPosition;
+
+        lat = position.coords.latitude;
+        lon = position.coords.longitude;
+      } else {
+        const { status } = await Location.requestForegroundPermissionsAsync();
+        if (status !== "granted") {
+          throw new Error("Location permission denied");
+        }
+
+        const location = await Location.getCurrentPositionAsync({});
+        lat = location.coords.latitude;
+        lon = location.coords.longitude;
       }
 
-      const location = await Location.getCurrentPositionAsync({});
-      const lat = location.coords.latitude;
-      const lon = location.coords.longitude;
-      console.log("Device location:", lat, lon);
+      console.log("Using location:", lat, lon);
 
       const BASE_URL =
         "https://57cb-41-220-233-110.ngrok-free.app/api/live-data/";
-      const url = `${BASE_URL}?lat=${lat}&lon=${lon}`;
-      console.log("Fetching weather from URL:", url);
+      const res = await fetch(`${BASE_URL}?lat=${lat}&lon=${lon}`);
 
-      const res = await fetch(url);
-      if (!res.ok) {
-        const text = await res.text();
-        console.log("Backend returned error:", res.status, text);
-        throw new Error(`Backend error: ${text}`);
-      }
+      if (!res.ok) throw new Error("Backend error");
 
-      const data: WeatherData = await res.json();
-      console.log("Weather data received:", data);
+      const data = await res.json();
 
       setWeatherData(data);
       setError(null);
     } catch (err: any) {
-      console.log("Error fetching weather data:", err.message || err);
+      console.log(err);
       setError("Failed to fetch weather data");
-      setWeatherData(null);
     } finally {
       setLoading(false);
     }

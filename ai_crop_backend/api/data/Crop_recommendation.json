@@ -170,18 +170,6 @@
     "ph_max": 7.0
   },
   {
-    "label": "pigeon_peas",
-    "category": "Legume",
-    "temp_min": 25,
-    "temp_max": 35,
-    "humidity_min": 40,
-    "humidity_max": 60,
-    "rainfall_min": 400,
-    "rainfall_max": 800,
-    "ph_min": 5.5,
-    "ph_max": 7.5
-  },
-  {
     "label": "lablab",
     "category": "Legume",
     "temp_min": 22,

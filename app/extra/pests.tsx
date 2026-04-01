@@ -46,7 +46,7 @@ export default function Pests() {
     if (!result.canceled) {
       const uri = result.assets[0].uri;
       setImage(uri);
-      detectDisease(uri);
+      detectPest(uri);
     }
   };
 
@@ -61,37 +61,66 @@ export default function Pests() {
     if (!result.canceled) {
       const uri = result.assets[0].uri;
       setImage(uri);
-      detectDisease(uri);
+      detectPest(uri);
     }
   };
 
-  const detectDisease = async (uri: string) => {
+  const detectPest = async (uri: string) => {
     setLoading(true);
 
     setTimeout(() => {
-      const diseases = [
+      const pests = [
         {
-          name: "Leaf Blight",
-          confidence: "92%",
+          name: "Aphids",
+          confidence: "91%",
+          description:
+            "Small insects that suck plant sap causing curling and yellowing leaves.",
           prevention:
-            "Use resistant varieties, avoid overcrowding, rotate crops.",
-          pesticide: "Spray Mancozeb or Chlorothalonil.",
+            "Introduce natural predators like ladybugs, use crop rotation, avoid excess nitrogen.",
+          pesticide: "Neem oil spray or insecticides like Imidacloprid.",
         },
         {
-          name: "Powdery Mildew",
+          name: "Fall Armyworm",
           confidence: "89%",
-          prevention: "Ensure proper spacing and air circulation.",
-          pesticide: "Use Sulfur-based fungicides.",
+          description:
+            "Caterpillar pest that destroys maize leaves and growing points.",
+          prevention:
+            "Early planting, field monitoring, remove affected plants.",
+          pesticide: "Apply Bacillus thuringiensis (Bt) or Chlorpyrifos.",
         },
         {
-          name: "Bacterial Wilt",
+          name: "Thrips",
+          confidence: "87%",
+          description: "Tiny insects that damage leaves and transmit viruses.",
+          prevention: "Use reflective mulch, keep fields weed-free.",
+          pesticide: "Spinosad or Neem-based insecticides.",
+        },
+        {
+          name: "Whiteflies",
+          confidence: "90%",
+          description:
+            "Sap-sucking pests that weaken plants and spread diseases.",
+          prevention: "Use yellow sticky traps, remove infected plants.",
+          pesticide: "Use Imidacloprid or insecticidal soap.",
+        },
+        {
+          name: "Cutworms",
           confidence: "85%",
-          prevention: "Use clean planting materials and proper drainage.",
-          pesticide: "Apply copper-based bactericides.",
+          description: "Larvae that cut young seedlings at the base.",
+          prevention: "Remove weeds, till soil before planting.",
+          pesticide: "Apply Carbaryl or biological controls like nematodes.",
+        },
+        {
+          name: "Spider Mites",
+          confidence: "88%",
+          description: "Tiny mites that cause leaf discoloration and webbing.",
+          prevention: "Maintain humidity, avoid drought stress.",
+          pesticide: "Use Abamectin or sulfur-based sprays.",
         },
       ];
 
-      const detected = diseases[Math.floor(Math.random() * diseases.length)];
+      const detected = pests[Math.floor(Math.random() * pests.length)];
+
       setResult(detected);
       setLoading(false);
     }, 2000);
@@ -107,15 +136,15 @@ export default function Pests() {
           <Pressable onPress={() => router.back()} style={styles.backButton}>
             <Ionicons name="arrow-back" size={24} color="#fff" />
           </Pressable>
-          <Text style={styles.hello}>Crop Pests Detection</Text>
+          <Text style={styles.hello}>Pest Detection & Control</Text>
         </View>
 
         <ScrollView contentContainerStyle={styles.scrollContent}>
-          {/* Info */}
           <Text style={styles.sectionTitle}>How Detection Works</Text>
+
           <Text style={styles.text}>
-            This system uses image-based AI to analyze pests and suggests
-            control measures.
+            This system analyzes crop images to detect pests and provides
+            recommended pesticides and prevention measures.
           </Text>
 
           <View style={styles.fieldCard}>
@@ -143,6 +172,10 @@ export default function Pests() {
               </Text>
 
               <Text style={styles.resultText}>
+                Description: {result.description}
+              </Text>
+
+              <Text style={styles.resultText}>
                 Prevention: {result.prevention}
               </Text>
 
@@ -157,14 +190,14 @@ export default function Pests() {
           <View style={styles.tipCard}>
             <Text style={styles.tip}>• Regularly inspect crops</Text>
             <Text style={styles.tip}>• Practice crop rotation</Text>
-            <Text style={styles.tip}>• Use pest-resistant crop varieties</Text>
-            <Text style={styles.tip}>• Keep farm clean (remove weeds)</Text>
+            <Text style={styles.tip}>• Use pest-resistant varieties</Text>
+            <Text style={styles.tip}>• Keep farm clean</Text>
             <Text style={styles.tip}>
               • Encourage natural predators (birds, insects)
             </Text>
             <Text style={styles.tip}>• Use organic pesticides like neem</Text>
             <Text style={styles.tip}>
-              • Apply pesticides only when infestation is detected
+              • Apply pesticides only when necessary
             </Text>
           </View>
 
@@ -186,6 +219,7 @@ export default function Pests() {
           </View>
         </ScrollView>
 
+        {/* Modal */}
         <Modal transparent visible={modalVisible} animationType="fade">
           <View style={styles.modalOverlay}>
             <View style={styles.modalBox}>

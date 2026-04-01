@@ -25,10 +25,8 @@ def live_location_data(request):
     except ValueError:
         return Response({"error": "Invalid latitude or longitude"}, status=400)
 
-    # ------------------ WEATHER ------------------
     weather = get_weather_data(lat, lon)
 
-    # ------------------ MONTHLY WEATHER ------------------
     monthly = get_monthly_weather_averages(lat, lon)
 
     forecast_4 = get_4_month_forecast(lat, lon)
@@ -38,28 +36,20 @@ def live_location_data(request):
     weather["avg_temp_month"] = monthly.get("avg_temp_month", 25)
     weather["rainfall_mm_per_month"] = monthly.get("rainfall_mm_per_month", 100)
 
-    # ------------------ FORECAST ------------------
     weather["forecast"] = get_4_month_forecast(lat, lon)
 
-    # ------------------ OPTIONAL: fallback rainfall ------------------
-    # Only use precipitation if monthly failed
     if weather["rainfall_mm_per_month"] == 0 and weather.get("precipitation") is not None:
         weather["rainfall_mm_per_month"] = round(weather["precipitation"] * 30 * 5, 2)
-        # (assumes ~5 rainy hours/day, more realistic)
 
-    # ------------------ SOIL ------------------
     soil_data = fetch_soil_data(lat, lon)
-    soil_ph = soil_data.get("soil_ph", 6.5)  # safe default
+    soil_ph = soil_data.get("soil_ph", 6.5)
 
     weather["soil_temperature"] = get_soil_temperature(
         lat, lon, weather.get("avg_temp_month")
     )
     weather.update(soil_data)
 
-    # ------------------ LOCATION ------------------
     weather["city"] = get_location_info(lat, lon)
-
-    # ------------------ CROP RECOMMENDATION ------------------
     if forecast_4:
         avg_temp_4 = sum(m["temp"] for m in forecast_4) / len(forecast_4)
         avg_rain_4 = sum(m["rainfall"] for m in forecast_4) / len(forecast_4)

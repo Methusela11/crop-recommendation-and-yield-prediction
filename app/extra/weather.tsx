@@ -100,7 +100,6 @@ export default function Weather() {
           <Text style={styles.hello}>Weather Analysis </Text>
         </View>
         <ScrollView contentContainerStyle={styles.scrollContent}>
-          {/* Current Weather */}
           <View style={styles.weatherCard}>
             <Text style={styles.hello}>{weather.city}</Text>
             {weather.weather_icon && (
